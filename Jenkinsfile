@@ -9,8 +9,8 @@ podTemplate(label: 'pod-golang',
     ]
 ) {
     node ('pod-golang') {
-
         stage 'Switch to Utility Container'
+        git 'https://github.com/Liatrio-LOK/spring-petclinic.git'
         container('maven') {
             sh("mvn clean package")
         }
