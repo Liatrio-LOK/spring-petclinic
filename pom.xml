@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.samples</groupId>
   <artifactId>spring-petclinic</artifactId>
-  <version>1.5.1</version>
+  <version>1.5.2-SNAPSHOT</version>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -224,5 +224,15 @@
       </plugin>
     </plugins>
   </reporting>
+  <distributionManagement>
+      <snapshotRepository>
+          <id>maven-snapshots</id>
+          <url>http://10.0.0.72:8081/nexus/content/repositories/maven-snapshots</url>
+      </snapshotRepository>
+      <repository>
+          <id>maven-releases</id>
+          <url>http://10.0.0.72:8081/nexus/content/repositories/maven-releases</url>
+      </repository>
+  </distributionManagement>
 
 </project>
