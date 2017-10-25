@@ -9,7 +9,7 @@ podTemplate(label: 'pod-maven',
     ]) {
     node ('pod-maven') {
       stage('Switch to Utility Container'){
-        git url: 'https://github.com/Liatrio-LOK/spring-petclinic.git', branch: 'LOK-14-minimal-pipeline'
+        git url: 'https://github.com/Liatrio-LOK/spring-petclinic.git'
         configFileProvider(
         [configFile(fileId: 'nexus', variable: 'MAVEN_SETTINGS')]){
           container('maven') {
