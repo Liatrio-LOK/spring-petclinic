@@ -5,7 +5,7 @@ pipeline {
         stage('Scale Deployment') {
             agent any 
             steps {
-              openshiftScale(depCfg: 'spring-petclinic', replicaCount: 'true')
+              openshiftScale(depCfg: 'spring-petclinic', replicaCount: '2')
             }
         }
         stage('Trigger Build') {
@@ -35,7 +35,7 @@ pipeline {
         stage('Verify Deployment') {
             agent any 
             steps {
-              openshiftVerifyDeployment(depCfg: 'spring-petclinic')
+              openshiftVerifyDeployment(depCfg: 'spring-petclinic', replicaCount: '2')
             }
         }
         stage('Verify Service') {
