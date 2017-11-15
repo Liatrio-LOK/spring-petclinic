@@ -1,21 +1,48 @@
-podTemplate(label: 'pod-maven', 
-    containers: [
-        containerTemplate(
-            name: 'maven',
-            image: 'maven:3.5.0',
-            ttyEnabled: true,
-            command: 'cat'
-        )
-    ]) {
-    node ('pod-maven') {
-      stage('Switch to Utility Container'){
-        git url: 'https://github.com/Liatrio-LOK/spring-petclinic.git'
-        configFileProvider(
-        [configFile(fileId: 'nexus', variable: 'MAVEN_SETTINGS')]){
-          container('maven') {
-              sh("mvn -s $MAVEN_SETTINGS clean deploy")
-          }
+
+pipeline {
+    agent none
+    stages {
+        stage('Scale Deployment') {
+            agent any 
+            steps {
+              openshiftScale(depCfg: 'spring-petclinic', replicaCount: '2')
+            }
         }
-      }
+        stage('Trigger Build') {
+            agent any 
+            steps {
+              openshiftBuild(bldCfg: 'spring-petclinic', showBuildLogs: 'true')
+            }
+        }
+        stage('Verify Build') {
+            agent any 
+            steps {
+              openshiftVerifyBuild(bldCfg: 'spring-petclinic')
+            }
+        }
+        stage('Tag Image') {
+            agent any 
+            steps {
+              openshiftTag(srcStream: 'spring-petclinic', srcTag: 'latest', destStream: 'spring-petclinic', destTag: 'prod')
+            }
+        }
+        stage('Trigger Deployment') {
+            agent any 
+            steps {
+              openshiftDeploy(depCfg: 'spring-petclinic')
+            }
+        }
+        stage('Verify Deployment') {
+            agent any 
+            steps {
+              openshiftVerifyDeployment(depCfg: 'spring-petclinic', replicaCount: '2')
+            }
+        }
+        stage('Verify Service') {
+            agent any 
+            steps {
+              openshiftVerifyService(svcName: 'spring-petclinic')
+            }
+        }
     }
 }
