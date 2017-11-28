@@ -1,22 +1,16 @@
-#!/bin/env groovy
+podTemplate(label: 'mypod', cloud: 'openshift', containers: [
+    containerTemplate(name: 'maven', image: 'maven:3.3.9-jdk-8-alpine', ttyEnabled: true, command: 'cat'),
+  ]) {
 
-pipeline {
-  agent none
-
-
-  stages {
-
-    stage('Build') {
-      agent {
-        docker {
-          image 'maven:3.5.0'
+    node('mypod') {
+        stage('Get a Maven project') {
+            git url: 'https://github.com/liatrio-lok/spring-petclinic.git', branch: env.GIT_BRANCH
+            container('maven') {
+                stage('Build a Maven project') {
+                    sh 'git branch --remote'
+                }
+            }
         }
-      }
-      steps {
-	    sh 'mvn build'
-      }
+
     }
-
-  }
-
 }
