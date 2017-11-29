@@ -7,7 +7,11 @@ podTemplate(label: 'mypod', cloud: 'openshift', containers: [
             git url: 'https://github.com/liatrio-lok/spring-petclinic.git', branch: env.GIT_BRANCH
             container('maven') {
                 stage('Build a Maven project') {
-                    sh 'git branch --remote'
+					steps {
+						configFileProvider([configFile(fileId: 'nexus', variable: 'MAVEN_SETTINGS')]) {
+						  sh 'mvn -s $MAVEN_SETTINGS clean deploy'
+						}
+					}
                 }
             }
         }
