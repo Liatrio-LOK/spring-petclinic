@@ -4,7 +4,7 @@ podTemplate(label: 'mypod', cloud: 'openshift', containers: [
 
     node('mypod') {
         stage('Get a Maven project') {
-            git url: 'https://github.com/liatrio-lok/spring-petclinic.git', branch: env.GIT_BRANCH
+			checkout scm
             container('maven') {
                 stage('Build a Maven project') {
 					steps {
