@@ -1,0 +1,36 @@
+
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "spring-petclinic-example",
+    "annotations": {
+      "openshift.io/display-name": "Spring Petclinic",
+      "description": "A basic OC template for a Spring Petclinic deploy environment.",
+      "tags": "petclinic,java",
+      "iconClass": "icon-java"
+    }
+  },
+  "parameters": [
+    {
+      "name": "NAME",
+      "displayName": "Name",
+      "description": "The name assigned to all of the frontend objects defined in this template.",
+      "required": true,
+      "value": "petclinic-deploy-example"
+    },
+    {
+      "name": "MEMORY_LIMIT",
+      "displayName": "Memory Limit",
+      "required": true,
+      "description": "Maximum amount of memory the Rails container can use.",
+      "value": "512Mi"
+    },
+    {
+      "name": "APPLICATION_DOMAIN",
+      "displayName": "Application Hostname",
+      "description": "The exposed hostname that will route to the Rails service, if left blank a value will be defaulted.",
+      "value": ""
+    }
+  ]
+}

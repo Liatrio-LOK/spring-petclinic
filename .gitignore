@@ -6,3 +6,6 @@ target/*
 *.iml
 /target
 _site/
+.terraform
+*.tfstate
+*.tfstate.backup

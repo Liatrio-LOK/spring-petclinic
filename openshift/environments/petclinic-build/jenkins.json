@@ -1,0 +1,241 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {},
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Route",
+            "metadata": {
+                "name": "jenkins"
+            },
+            "spec": {
+                "host": "jenkins.petclinic.liatr.io",
+                "to": {
+                    "kind": "Service",
+                    "name": "jenkins"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "PersistentVolumeClaim",
+            "metadata": {
+                "name": "jenkins"
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "1Gi"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "DeploymentConfig",
+            "metadata": {
+                "annotations": {
+                    "template.alpha.openshift.io/wait-for-ready": "true"
+                },
+                "name": "jenkins"
+            },
+            "spec": {
+                "replicas": 1,
+                "selector": {
+                    "name": "jenkins"
+                },
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "name": "jenkins"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "capabilities": {},
+                                "env": [
+                                    {
+                                        "name": "OPENSHIFT_ENABLE_OAUTH",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "OPENSHIFT_ENABLE_REDIRECT_PROMPT",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "KUBERNETES_MASTER",
+                                        "value": "https://kubernetes.default:443"
+                                    },
+                                    {
+                                        "name": "KUBERNETES_TRUST_CERTIFICATES",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "JENKINS_SERVICE_NAME",
+                                        "value": "jenkins"
+                                    },
+                                    {
+                                        "name": "JNLP_SERVICE_NAME",
+                                        "value": "jenkins-jnlp"
+                                    }
+                                ],
+                                "image": " ",
+                                "imagePullPolicy": "IfNotPresent",
+                                "livenessProbe": {
+                                    "failureThreshold": 30,
+                                    "httpGet": {
+                                        "path": "/login",
+                                        "port": 8080
+                                    },
+                                    "initialDelaySeconds": 420,
+                                    "timeoutSeconds": 3
+                                },
+                                "name": "jenkins",
+                                "readinessProbe": {
+                                    "httpGet": {
+                                        "path": "/login",
+                                        "port": 8080
+                                    },
+                                    "initialDelaySeconds": 3,
+                                    "timeoutSeconds": 3
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "memory": "2G"
+                                    }
+                                },
+                                "securityContext": {
+                                    "capabilities": {},
+                                    "privileged": false
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/var/lib/jenkins",
+                                        "name": "jenkins-data"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "restartPolicy": "Always",
+                        "serviceAccountName": "jenkins",
+                        "volumes": [
+                            {
+                                "name": "jenkins-data",
+                                "persistentVolumeClaim": {
+                                    "claimName": "jenkins"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "triggers": [
+                    {
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "jenkins"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "jenkins:latest",
+                                "namespace": "openshift"
+                            },
+                            "lastTriggeredImage": ""
+                        },
+                        "type": "ImageChange"
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "ServiceAccount",
+            "metadata": {
+                "annotations": {
+                    "serviceaccounts.openshift.io/oauth-redirectreference.jenkins": "{\"kind\":\"OAuthRedirectReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"Route\",\"name\":\"jenkins\"}}"
+                },
+                "name": "jenkins"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "groupNames": null,
+            "kind": "RoleBinding",
+            "metadata": {
+                "name": "jenkins_edit"
+            },
+            "roleRef": {
+                "name": "edit"
+            },
+            "subjects": [
+                {
+                    "kind": "ServiceAccount",
+                    "name": "jenkins"
+                }
+            ]
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "name": "jenkins-jnlp"
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "agent",
+                        "nodePort": 0,
+                        "port": 50000,
+                        "protocol": "TCP",
+                        "targetPort": 50000
+                    }
+                ],
+                "selector": {
+                    "name": "jenkins"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "service.alpha.openshift.io/dependencies": "[{\"name\": \"jenkins-jnlp\", \"namespace\": \"\", \"kind\": \"Service\"}]",
+                    "service.openshift.io/infrastructure": "true"
+                },
+                "name": "jenkins"
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "web",
+                        "nodePort": 0,
+                        "port": 80,
+                        "protocol": "TCP",
+                        "targetPort": 8080
+                    }
+                ],
+                "selector": {
+                    "name": "jenkins"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            }
+        }
+    ]
+}
