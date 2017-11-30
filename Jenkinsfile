@@ -33,14 +33,11 @@ podTemplate(label: 'mvn-build', cloud: 'openshift', containers: [
 
 		stage('Tag Image') {
 			openshiftTag (
-				namespace: 'petclinic-build', 
-				sourceStream: 'petclinic', 
-				srcStream: 'petclinic'
-				sourceTag: 'latest', 
-				destinationStream: 'petclinic', 
-				destinationTag: "${env.GIT_BRANCH}", 
-				destinationNamespace: 'petclinic-build', 
-				verbose: 'false'
+				sourceStream: 'petclinic',
+				sourceTag: 'latest',
+				destinationStream: 'petclinic',
+				destinationTag: env.BRANCH_NAME,
+				destinationNamespace: 'petclinic-build'
 			)
         }
 
