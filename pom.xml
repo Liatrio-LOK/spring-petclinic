@@ -235,4 +235,11 @@
       </repository>
   </distributionManagement>
 
+<distributionManagement>
+   <snapshotRepository>
+      <id>deployment</id>
+      <url>http://localhost:8081/nexus/repository/snapshot/</url>
+   </snapshotRepository>
+</distributionManagement>
+
 </project>
